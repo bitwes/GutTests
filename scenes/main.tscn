@@ -11,6 +11,7 @@ __meta__ = { "__editor_plugin_screen__":"Script" }
 
 [node name="Gut" type="WindowDialog" parent="."]
 
+visibility/visible = false
 focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
@@ -25,6 +26,10 @@ script/script = ExtResource( 2 )
 __meta__ = { "_editor_icon":ExtResource( 3 ) }
 _should_print_to_console = true
 _log_level = 1
-_test_directories = [ "res://test/unit", "res://test/integration" ]
+_directory1 = ""
+_directory2 = ""
+_directory3 = ""
+_directory4 = ""
+_directory5 = ""
 
 

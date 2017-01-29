@@ -628,23 +628,44 @@ func test_asserts_on_test_object():
 #------------------------------
 func test_adding_directory_loads_files():
 	gr.test_gut.add_directory('res://test_dir_load')
-	assert_true(gr.test_gut._test_scripts.has('res://test_dir_load/test_samples.gd'))
+	assert_has(gr.test_gut._test_scripts, 'res://test_dir_load/test_samples.gd')
 
 func test_adding_directory_does_not_load_bad_prefixed_files():
 	gr.test_gut.add_directory('res://test_dir_load')
-	assert_false(gr.test_gut._test_scripts.has('res://test_dir_load/bad_prefix.gd'))
+	assert_does_not_have(gr.test_gut._test_scripts, 'res://test_dir_load/bad_prefix.gd')
 	
 func test_adding_directory_skips_files_with_wrong_extension():
 	gr.test_gut.add_directory('res://test_dir_load')
-	assert_false(gr.test_gut._test_scripts.has('res://test_dir_load/test_bad_extension.txt'))
+	assert_does_not_have(gr.test_gut._test_scripts, 'res://test_dir_load/test_bad_extension.txt')
 
-func test_directories_defined_in_editor_are_loaded_on_ready():
+func test_if_directory_does_not_exist_it_does_not_die():
+	gr.test_gut.add_directory('res://adsf')
+	assert_true(true, 'We should get here')
+	
+
+func test_directories123_defined_in_editor_are_loaded_on_ready():
 	var g = Gut.new()
 	g.set_yield_between_tests(false)
-	g.set_log_level(g.LOG_LEVEL_ALL_ASSERTS)
-	g._test_directories.append('res://test_dir_load')
+	g._directory1 = 'res://test_dir_load'
+	g._directory2 = 'res://test/unit'
+	g._directory3 = 'res://test/integration'
 	add_child(g)
-	assert_true(g._test_scripts.has('res://test_dir_load/test_samples.gd'), 'Should contain a test script from the dir')
+	g.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir1 script')
+	g.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir2 script')
+	g.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir3 script')
+	gut.p(str(g._test_scripts))
+	assert_eq(g.get_pass_count(), 3, 'they should have passed')
+
+func test_directories45_defined_in_editor_are_loaded_on_ready():
+	var g = Gut.new()
+	g.set_yield_between_tests(false)
+	g._directory4 = 'res://test_dir_load'
+	g._directory5 = 'res://test/unit'
+	add_child(g)
+	g.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir1 script')
+	g.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir2 script')
+	gut.p(str(g._test_scripts))
+	assert_eq(g.get_pass_count(), 2, 'they should have passed')
 
 #-------------------------------------------------------------------------------
 #
