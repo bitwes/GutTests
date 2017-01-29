@@ -643,6 +643,7 @@ func test_if_directory_does_not_exist_it_does_not_die():
 	assert_true(true, 'We should get here')
 	
 
+# We only have 3 directories with tests in them so test 3
 func test_directories123_defined_in_editor_are_loaded_on_ready():
 	var g = Gut.new()
 	g.set_yield_between_tests(false)
@@ -653,19 +654,20 @@ func test_directories123_defined_in_editor_are_loaded_on_ready():
 	g.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir1 script')
 	g.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir2 script')
 	g.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir3 script')
-	gut.p(str(g._test_scripts))
 	assert_eq(g.get_pass_count(), 3, 'they should have passed')
 
-func test_directories45_defined_in_editor_are_loaded_on_ready():
+# ^ aaaand then we test 2 more.
+func test_directories456_defined_in_editor_are_loaded_on_ready():
 	var g = Gut.new()
 	g.set_yield_between_tests(false)
 	g._directory4 = 'res://test_dir_load'
 	g._directory5 = 'res://test/unit'
+	g._directory6 = 'res://test/integration'
 	add_child(g)
-	g.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir1 script')
-	g.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir2 script')
-	gut.p(str(g._test_scripts))
-	assert_eq(g.get_pass_count(), 2, 'they should have passed')
+	g.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir4 script')
+	g.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir5 script')
+	g.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir6 script')
+	assert_eq(g.get_pass_count(), 3, 'they should have passed')
 
 #-------------------------------------------------------------------------------
 #

@@ -38,7 +38,8 @@ var tester = null
 func _ready():
 	#_run_test_one_line():
 	#_run_gut_tests()
-	_run_all_tests()
+	#_run_all_tests()
+	pass
 
 # Show that the signal is working.
 func _on_tests_finished():
