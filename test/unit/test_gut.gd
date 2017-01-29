@@ -641,7 +641,12 @@ func test_adding_directory_skips_files_with_wrong_extension():
 func test_if_directory_does_not_exist_it_does_not_die():
 	gr.test_gut.add_directory('res://adsf')
 	assert_true(true, 'We should get here')
-	
+
+func test_adding_same_directory_does_not_add_duplicates():
+	gr.test_gut.add_directory('res://test/unit')
+	var orig = gr.test_gut._test_scripts.size()
+	gr.test_gut.add_directory('res://test/unit')
+	assert_eq(gr.test_gut._test_scripts.size(), orig)
 
 # We only have 3 directories with tests in them so test 3
 func test_directories123_defined_in_editor_are_loaded_on_ready():
