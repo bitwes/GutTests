@@ -307,6 +307,29 @@ func test_assert_false_with_false():
 	assert_pass()
 
 #------------------------------
+# assert_has
+#------------------------------
+func test_assert_has_passes_when_array_has_element():
+	var array = [0]
+	gr.test_gut.assert_has(array, 0, 'It should have zero')
+	assert_pass()
+
+func test_assert_has_fails_when_it_does_not_have_element():
+	var array = [0]
+	gr.test_gut.assert_has(array, 1, 'Should not have it')
+	assert_fail()
+
+func test_assert_not_have_passes_when_not_in_there():
+	var array = [0, 3, 5]
+	gr.test_gut.assert_does_not_have(array, 2, 'Should not have it.')
+	assert_pass()
+
+func test_assert_not_have_fails_when_in_there():
+	var array = [1, 10, 20]
+	gr.test_gut.assert_does_not_have(array, 20, 'Should not have it.')
+	assert_fail()
+
+#------------------------------
 # disable strict datatype comparisons
 #------------------------------
 func test_when_strict_enabled_you_can_compare_int_and_float():
@@ -545,6 +568,7 @@ func test_pass_if_all_get_sets_are_aligned():
 	var obj = HasGetSetThatWorks.new()
 	gr.test_gut.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
 	assert_pass(4)
+
 #------------------------------
 # Setting test to run
 #------------------------------
@@ -598,6 +622,29 @@ func test_asserts_on_test_object():
 
 	var obj = HasGetSetThatWorks.new()
 	assert_get_set_methods(obj, 'thing', 'something', 'another thing')
+
+#------------------------------
+# Loading diretories
+#------------------------------
+func test_adding_directory_loads_files():
+	gr.test_gut.add_directory('res://test_dir_load')
+	assert_true(gr.test_gut._test_scripts.has('res://test_dir_load/test_samples.gd'))
+
+func test_adding_directory_does_not_load_bad_prefixed_files():
+	gr.test_gut.add_directory('res://test_dir_load')
+	assert_false(gr.test_gut._test_scripts.has('res://test_dir_load/bad_prefix.gd'))
+	
+func test_adding_directory_skips_files_with_wrong_extension():
+	gr.test_gut.add_directory('res://test_dir_load')
+	assert_false(gr.test_gut._test_scripts.has('res://test_dir_load/test_bad_extension.txt'))
+
+func test_directories_defined_in_editor_are_loaded_on_ready():
+	var g = Gut.new()
+	g.set_yield_between_tests(false)
+	g.set_log_level(g.LOG_LEVEL_ALL_ASSERTS)
+	g._test_directories.append('res://test_dir_load')
+	add_child(g)
+	assert_true(g._test_scripts.has('res://test_dir_load/test_samples.gd'), 'Should contain a test script from the dir')
 
 #-------------------------------------------------------------------------------
 #

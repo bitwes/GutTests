@@ -1,5 +1,5 @@
 ################################################################################
-#All the magic happens with the extends.  This gets you access to all the gut 
+#All the magic happens with the extends.  This gets you access to all the gut
 #asserts and the overridable setup and teardown methods.
 #
 #The path to this script is passed to an instance of the gut script when calling
@@ -25,7 +25,7 @@ func postrun_teardown():
 
 func test_assert_eq_number_not_equal():
 	gut.assert_eq(1, 2, "Should fail.  1 != 2")
-	
+
 func test_assert_eq_number_equal():
 	gut.assert_eq('asdf', 'asdf', "Should pass")
 

@@ -15,13 +15,16 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-margin/left = 62.0
+margin/left = 63.0
 margin/top = 25.0
-margin/right = 798.0
+margin/right = 799.0
 margin/bottom = 589.0
 popup/exclusive = false
 window/title = ""
 script/script = ExtResource( 2 )
 __meta__ = { "_editor_icon":ExtResource( 3 ) }
+_should_print_to_console = true
+_log_level = 1
+_test_directories = [ "res://test/unit", "res://test/integration" ]
 
 
