@@ -1,4 +1,4 @@
-extends "res://test/gut/gut.gd".Test
+extends "res://addons/gut/test.gd"
 
 
 # #############
