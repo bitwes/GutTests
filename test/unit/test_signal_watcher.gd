@@ -1,25 +1,49 @@
 extends "res://addons/gut/test.gd"
-
+# ##############################################################################
+# Some notes about signals:
+# 	* The paramters appear to be completely optional when defined via
+#		add_user_signal.
+#	* As long as you have enough parameters defined (defaulted of course) on
+#		your handler, then it be notified of the signal when it is emitted.
+#	* I seem to remember that if more parameters are passed to the signal
+#		handler than the handler has, then the handler will not be called.  This
+#		isn't tested here, since it doesn't matter but I thought I would make
+#		note of it.
+#	*
+# ##############################################################################
 var SignalWatcher = load('res://addons/Gut/signal_watcher.gd')
 var gr = {
 	so = null,
 	sw = null
 }
 
+# Constants so I don't get false pass/fail with misspellings
+const SIGNALS = {
+	NO_PARAMETERS = 'no_parameters',
+	ONE_PARAMETER = 'one_parameter',
+	TWO_PARAMETERS = 'two_parameters',
+	SOME_SIGNAL = 'some_signal'
+}
+
+# ####################
+# A class that can emit all the signals in SIGNALS
+# ####################
 class SignalObject:
-	# ####################
-	# Constants so I don't get false pass/fail with misspellings
-	# ####################
-	const SIGNALS = {
-		NO_PARAMETERS = 'no_parameters',
-		ONE_PARAMETER = 'one_parameter',
-		TWO_PARAMETERS = 'two_parameters'
-	}
 	func _init():
 		add_user_signal(SIGNALS.NO_PARAMETERS)
-		add_user_signal(SIGNALS.ONE_PARAMETER, [10])
-		add_user_signal(SIGNALS.TWO_PARAMETERS, [1, 'WORD'])
+		add_user_signal(SIGNALS.ONE_PARAMETER, [
+			{'name':'something', 'type':TYPE_INT}
+		])
+		add_user_signal(SIGNALS.TWO_PARAMETERS, [
+			{'name':'num', 'type':TYPE_INT},
+			{'name':'letters', 'type':TYPE_STRING}
+		])
+		add_user_signal(SIGNALS.SOME_SIGNAL)
 
+
+# ####################
+# Setup/Teardown
+# ####################
 func setup():
 	gr.sw = SignalWatcher.new()
 	gr.so = SignalObject.new()
@@ -28,24 +52,124 @@ func teardown():
 	gr.sw = null
 	gr.so = null
 
+
+# ####################
+# Tests
+# ####################
 func test_print_signals():
-	gr.sw.print_signals(gr.so)
+	gr.sw.print_object_signals(gr.so)
 
-func test_when_signal_emitted_the_signal_count_is_incremented():
-	gr.sw.watch_signal(gr.so, gr.so.SIGNALS.NO_PARAMETERS)
-	gr.so.emit_signal(gr.so.SIGNALS.NO_PARAMETERS)
-	assert_eq(gr.sw.get_emit_count(gr.so, gr.so.SIGNALS.NO_PARAMETERS), 1, 'The signal should have been counted.')
 
-func test_when_signal_emitted_assert_emitted_passes():
-	gr.sw.watch_signal(gr.so, gr.so.SIGNALS.NO_PARAMETERS)
-	gr.so.emit_signal(gr.so.SIGNALS.NO_PARAMETERS)
-	assert_true(gr.sw.did_emit(gr.so, gr.so.SIGNALS.NO_PARAMETERS), 'The signal should have been emitted')
-
+# ####################
+# Watch one signal
+# ####################
 func test_no_engine_errors_when_signal_does_not_exist():
 	gut.p('!! Look for Red !!')
 	gr.sw.watch_signal(gr.so, 'some_signal_that_does_not_exist')
 
+func test_when_signal_does_not_exist_watch_signal_returns_false():
+	var did = gr.sw.watch_signal(gr.so, 'some_signal_that_does_not_exist')
+	assert_false(did, 'It should not be watching')
+
+func test_when_signal_does_exist_then_watch_signal_returns_true():
+	var did = gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_true(did, 'It should be watching')
+
+
+# ####################
+# Counting Emits
+# ####################
+func test_when_signal_emitted_the_signal_count_is_incremented():
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	gr.so.emit_signal(SIGNALS.NO_PARAMETERS)
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.NO_PARAMETERS), 1, 'The signal should have been counted.')
+
 func test_when_signal_emitted_with_parameters_it_is_counted():
-	gr.sw.watch_signal(gr.so, gr.so.SIGNALS.NO_PARAMETERS)
-	gr.so.emit_signal(gr.so.SIGNALS.NO_PARAMETERS, 'word')
-	assert_eq(gr.sw.get_emit_count(gr.so, gr.so.SIGNALS.NO_PARAMETERS), 1, 'The signal should have been counted.')
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	gr.so.emit_signal(SIGNALS.NO_PARAMETERS, 'word')
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.NO_PARAMETERS), 1, 'The signal should have been counted.')
+
+func test_when_two_parameter_signal_fired_it_is_counted():
+	gr.sw.watch_signal(gr.so, SIGNALS.TWO_PARAMETERS)
+	gr.so.emit_signal(SIGNALS.TWO_PARAMETERS)
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.TWO_PARAMETERS), 1)
+
+func test_when_signal_was_not_fired_the_count_is_0():
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.SOME_SIGNAL), 0)
+
+func test_when_signal_was_not_being_watched_the_count_is_neg_1():
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.SOME_SIGNAL), -1)
+
+func test_when_object_was_not_being_watched_the_count_is_neg_1():
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.SOME_SIGNAL), -1)
+
+# ####################
+# did_emit
+# ####################
+func test_when_signal_was_emitted_did_emit_returns_true():
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	gr.so.emit_signal(SIGNALS.NO_PARAMETERS)
+	assert_true(gr.sw.did_emit(gr.so, SIGNALS.NO_PARAMETERS))
+
+func test_when_signal_was_not_emitted_did_emit_returns_false():
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_false(gr.sw.did_emit(gr.so, SIGNALS.NO_PARAMETERS))
+
+func test_when_signal_was_not_being_watched_did_emit_returns_false():
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_false(gr.sw.did_emit(gr.so, SIGNALS.SOME_SIGNAL))
+
+func test_when_object_was_not_being_watched_did_emit_returns_false():
+	assert_false(gr.sw.did_emit(gr.so, SIGNALS.SOME_SIGNAL))
+
+# ####################
+# Signal Parameters
+# ####################
+func test_can_get_parameters_sent_when_signal_emitted_with_no_parameters():
+	gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
+	gr.so.emit_signal(SIGNALS.NO_PARAMETERS)
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_eq(params, [], 'It should return an empty array')
+
+func test_when_some_signal_emitted_with_parameter_it_is_returned():
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'from_emit')
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.SOME_SIGNAL)
+	assert_eq(params, ['from_emit'])
+
+func test_when_two_parameter_signal_fired_the_parameters_are_returned():
+	gr.sw.watch_signal(gr.so, SIGNALS.TWO_PARAMETERS)
+	gr.so.emit_signal(SIGNALS.TWO_PARAMETERS, 1, 'WORD')
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.TWO_PARAMETERS)
+	assert_eq(params, [1, 'WORD'])
+
+func test_get_parameters_returns_null_when_signal_not_fired():
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.SOME_SIGNAL)
+	assert_eq(params, null)
+
+func test_when_signal_not_watched_null_is_returned():
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_eq(params, null)
+
+func test_when_object_not_watched_null_is_returned():
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.NO_PARAMETERS)
+	assert_eq(params, null)
+
+func test_params_returned_default_to_the_most_recent_emission():
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'first')
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'second')
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.SOME_SIGNAL)
+	assert_eq(params, ['second'])
+
+func test_can_get_params_for_a_specific_emission_of_signal():
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'first')
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'second')
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'third')
+	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.SOME_SIGNAL, 1)
+	assert_eq(params, ['second'])
