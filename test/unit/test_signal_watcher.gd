@@ -173,3 +173,12 @@ func test_can_get_params_for_a_specific_emission_of_signal():
 	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'third')
 	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.SOME_SIGNAL, 1)
 	assert_eq(params, ['second'])
+
+# ####################
+# Watch Signals (plural)
+# ####################
+func test_watch_signals_watches_all_signals_on_an_object():
+	gr.sw.watch_signals(gr.so)
+
+	for sig in SIGNALS:
+		assert_true(gr.sw.is_watching(gr.so, SIGNALS[sig]), str('it should be watching: ', SIGNALS[sig]))
