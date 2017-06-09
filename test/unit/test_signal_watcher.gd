@@ -75,7 +75,6 @@ func test_when_signal_does_exist_then_watch_signal_returns_true():
 	var did = gr.sw.watch_signal(gr.so, SIGNALS.NO_PARAMETERS)
 	assert_true(did, 'It should be watching')
 
-
 # ####################
 # Counting Emits
 # ####################
@@ -104,6 +103,18 @@ func test_when_signal_was_not_being_watched_the_count_is_neg_1():
 
 func test_when_object_was_not_being_watched_the_count_is_neg_1():
 	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.SOME_SIGNAL), -1)
+
+func test_can_watch_signals_on_multiple_objects():
+	var other_so = SignalObject.new()
+	gr.sw.watch_signal(gr.so, SIGNALS.SOME_SIGNAL)
+	gr.sw.watch_signal(other_so, SIGNALS.NO_PARAMETERS)
+
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.so.emit_signal(SIGNALS.SOME_SIGNAL)
+
+	other_so.emit_signal(SIGNALS.NO_PARAMETERS)
+	assert_eq(gr.sw.get_emit_count(gr.so, SIGNALS.SOME_SIGNAL), 2, 'gr.so emit twice')
+	assert_eq(gr.sw.get_emit_count(other_so, SIGNALS.NO_PARAMETERS), 1, 'other_so emit once')
 
 # ####################
 # did_emit
@@ -179,6 +190,20 @@ func test_can_get_params_for_a_specific_emission_of_signal():
 # ####################
 func test_watch_signals_watches_all_signals_on_an_object():
 	gr.sw.watch_signals(gr.so)
-
 	for sig in SIGNALS:
 		assert_true(gr.sw.is_watching(gr.so, SIGNALS[sig]), str('it should be watching: ', SIGNALS[sig]))
+
+# ####################
+# Clear
+# ####################
+func test_when_cleared_it_is_not_watching_any_signals():
+	gr.sw.watch_signals(gr.so)
+	gr.sw.clear()
+	for sig in SIGNALS:
+		assert_false(gr.sw.is_watching(gr.so, SIGNALS[sig]), str('it should NOT be watching: ', SIGNALS[sig]))
+
+func test_when_cleared_it_should_disconnect_from_signals():
+	gr.sw.watch_signals(gr.so)
+	gr.sw.clear()
+	for sig in SIGNALS:
+		assert_false(gr.so.is_connected(SIGNALS[sig], gr.sw, '_on_watched_signal'), str('it should NOT be connected to: ', SIGNALS[sig]))

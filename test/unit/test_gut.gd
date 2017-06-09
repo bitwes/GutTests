@@ -51,6 +51,28 @@ class HasGetSetThatWorks:
 	func set_thing(new_thing):
 		_thing = new_thing
 
+# Constants so I don't get false pass/fail with misspellings
+const SIGNALS = {
+	NO_PARAMETERS = 'no_parameters',
+	ONE_PARAMETER = 'one_parameter',
+	TWO_PARAMETERS = 'two_parameters',
+	SOME_SIGNAL = 'some_signal'
+}
+
+# ####################
+# A class that can emit all the signals in SIGNALS
+# ####################
+class SignalObject:
+	func _init():
+		add_user_signal(SIGNALS.NO_PARAMETERS)
+		add_user_signal(SIGNALS.ONE_PARAMETER, [
+			{'name':'something', 'type':TYPE_INT}
+		])
+		add_user_signal(SIGNALS.TWO_PARAMETERS, [
+			{'name':'num', 'type':TYPE_INT},
+			{'name':'letters', 'type':TYPE_STRING}
+		])
+		add_user_signal(SIGNALS.SOME_SIGNAL)
 
 #------------------------------
 # Utility methods/variables
@@ -67,7 +89,8 @@ var counts = {
 # teardown methods.
 var gr = {
 	test_gut = null,
-	test_finished_called = false
+	test_finished_called = false,
+	signal_object = null
 }
 
 func callback_for_test_finished():
@@ -108,6 +131,7 @@ func setup():
 	counts.setup_count += 1
 	gr.test_finished_called = false
 	gr.test_gut = get_a_gut()
+	gr.signal_object = SignalObject.new()
 
 func teardown():
 	counts.teardown_count += 1
@@ -345,11 +369,11 @@ func test_when_strict_disabled_can_compare_int_and_float():
 # ------------------------------
 # File asserts
 # ------------------------------
-func test_assert_file_exists_with_file_dne():
+func test__assert_file_exists__with_file_dne():
 	gr.test_gut.assert_file_exists('user://file_dne.txt')
 	assert_fail()
 
-func test_assert_file_exists_with_file_exists():
+func test__assert_file_exists__with_file_exists():
 	var path = 'user://gut_test_file.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -357,11 +381,11 @@ func test_assert_file_exists_with_file_exists():
 	gr.test_gut.assert_file_exists(path)
 	assert_pass()
 
-func test_assert_file_dne_with_file_dne():
+func test__assert_file_dne__with_file_dne():
 	gr.test_gut.assert_file_does_not_exist('user://file_dne.txt')
 	assert_pass()
 
-func test_assert_file_dne_with_file_exists():
+func test__assert_file_dne__with_file_exists():
 	var path = 'user://gut_test_file2.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -369,7 +393,7 @@ func test_assert_file_dne_with_file_exists():
 	gr.test_gut.assert_file_does_not_exist(path)
 	assert_fail()
 
-func test_assert_file_empty_with_empty_file():
+func test__assert_file_empty__with_empty_file():
 	var path = 'user://gut_test_empty.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -377,7 +401,7 @@ func test_assert_file_empty_with_empty_file():
 	gr.test_gut.assert_file_empty(path)
 	assert_pass()
 
-func test_assert_file_empty_with_not_empty_file():
+func test__assert_file_empty__with_not_empty_file():
 	var path = 'user://gut_test_empty2.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -386,12 +410,12 @@ func test_assert_file_empty_with_not_empty_file():
 	gr.test_gut.assert_file_empty(path)
 	assert_fail()
 
-func test_assert_file_empty_fails_when_file_dne():
+func test__assert_file_empty__fails_when_file_dne():
 	var path = 'user://file_dne.txt'
 	gr.test_gut.assert_file_empty(path)
 	assert_fail()
 
-func test_assert_file_not_empty_with_empty_file():
+func test__assert_file_not_empty__with_empty_file():
 	var path = 'user://gut_test_empty3.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -399,7 +423,7 @@ func test_assert_file_not_empty_with_empty_file():
 	gr.test_gut.assert_file_not_empty(path)
 	assert_fail()
 
-func test_assert_file_not_empty_with_populated_file():
+func test__assert_file_not_empty__with_populated_file():
 	var path = 'user://gut_test_empty4.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -408,7 +432,7 @@ func test_assert_file_not_empty_with_populated_file():
 	gr.test_gut.assert_file_not_empty(path)
 	assert_pass()
 
-func test_assert_file_not_empty_fails_when_file_dne():
+func test__assert_file_not_empty__fails_when_file_dne():
 	var path = 'user://file_dne.txt'
 	gr.test_gut.assert_file_not_empty(path)
 	assert_fail()
@@ -673,6 +697,87 @@ func test_directories456_defined_in_editor_are_loaded_on_ready():
 	g.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir5 script')
 	g.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir6 script')
 	assert_eq(g.get_pass_count(), 3, 'they should have passed')
+
+
+# ------------------------------
+# Signal Asserts
+# ------------------------------
+func test_when_object_not_being_watched__assert_signal_emitted__fails():
+	gr.test_gut.assert_signal_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
+	assert_fail()
+
+func test_when_signal_emitted__assert_signal_emitted__passes():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.test_gut.assert_signal_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
+	assert_pass()
+
+func test_when_signal_not_emitted__assert_signal_emitted__fails():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.test_gut.assert_signal_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
+	assert_fail()
+
+func test_when_object_does_not_have_signal__assert_signal_emitted__fails():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.test_gut.assert_signal_emitted(gr.signal_object, 'signal_does_not_exist')
+	assert_fail(1, 'Only the failure that it does not have signal should fire.')
+
+func test_when_signal_emitted__assert_signal_not_emitted__fails():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.test_gut.assert_signal_not_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
+	assert_fail()
+
+func test_when_signal_not_emitted__assert_signal_not_emitted__fails():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.test_gut.assert_signal_not_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
+	assert_pass()
+
+func test_when_object_does_not_have_signal__assert_signal_not_emitted__fails():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.test_gut.assert_signal_not_emitted(gr.signal_object, 'signal_does_not_exist')
+	assert_fail(1, 'Only the failure that it does not have signal should fire.')
+
+func test_when_signal_emitted_once__assert_signal_emit_count__passes_with_1():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.test_gut.assert_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL, 1)
+	assert_pass()
+
+func test_when_signal_emitted_twice__assert_signal_emit_count__fails_with_1():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.test_gut.assert_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL, 1)
+	assert_fail()
+
+func test_when_object_does_not_have_signal__assert_signal_emit_count__fails():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.test_gut.assert_signal_emit_count(gr.signal_object, 'signal_does_not_exist', 0)
+	assert_fail()
+
+func test__assert_has_signal__passes_when_it_has_the_signal():
+	gr.test_gut.assert_has_signal(gr.signal_object, SIGNALS.NO_PARAMETERS)
+	assert_pass()
+
+func test__assert_has_signal__fails_when_it_does_not_have_the_signal():
+	gr.test_gut.assert_has_signal(gr.signal_object, 'signal does not exist')
+	assert_fail()
+
+func test_can_get_signal_emit_counts():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
+	assert_eq(gr.test_gut.get_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL), 2)
+
+func test__get_signal_emit_count__returns_neg_1_when_not_watched():
+	assert_eq(gr.test_gut.get_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL), -1)
+
+func test_when_moving_to_next_test_watched_signals_are_cleared():
+	gr.test_gut.add_script('res://test/unit/verify_signal_watches_are_cleared.gd')
+	gr.test_gut.test_scripts()
+	assert_eq(gr.test_gut.get_pass_count(), 1, 'One test should have passed.')
+	assert_eq(gr.test_gut.get_fail_count(), 1, 'One test should have failed.')
 
 #-------------------------------------------------------------------------------
 #
