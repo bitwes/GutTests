@@ -770,8 +770,50 @@ func test_can_get_signal_emit_counts():
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
 	assert_eq(gr.test_gut.get_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL), 2)
 
+func test__assert_signal_emitted_with_paramters__fails_when_object_not_watched():
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [])
+	assert_fail()
+
+func test__assert_signal_emitted_with_parameters__passes_when_paramters_match():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1])
+	assert_pass()
+
+func test__assert_signal_emitted_with_parameters__fails_when_all_paramters_match():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1, 2, 3])
+	assert_pass()
+
+func test__assert_signal_emitted_with_parameters__fails_when_paramters_dont_match():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2])
+	assert_fail()
+
+func test__assert_signal_emitted_with_parameters__fails_when_not_all_paramters_match():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1, 0, 3])
+	assert_fail()
+
+
+func test__assert_signal_emitted_with_parameters__can_check_multiple_emission():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 2)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1], 0)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2], 1)
+	assert_pass(2)
+
 func test__get_signal_emit_count__returns_neg_1_when_not_watched():
 	assert_eq(gr.test_gut.get_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL), -1)
+
+func test_can_get_signal_parameters():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
+	assert_eq(gr.test_gut.get_signal_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, 0), [1, 2, 3])
 
 func test_when_moving_to_next_test_watched_signals_are_cleared():
 	gr.test_gut.add_script('res://test/unit/verify_signal_watches_are_cleared.gd')
