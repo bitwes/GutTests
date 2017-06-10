@@ -780,12 +780,17 @@ func test__assert_signal_emitted_with_parameters__passes_when_paramters_match():
 	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1])
 	assert_pass()
 
-func test__assert_signal_emitted_with_parameters__fails_when_all_paramters_match():
+func test__assert_signal_emitted_with_parameters__passes_when_all_paramters_match():
 	gr.test_gut.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
 	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1, 2, 3])
 	assert_pass()
 
+func test__assert_signal_emitted_with_parameters__fails_when_signal_not_emitted():
+	gr.test_gut.watch_signals(gr.signal_object)
+	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2])
+	assert_fail()
+	
 func test__assert_signal_emitted_with_parameters__fails_when_paramters_dont_match():
 	gr.test_gut.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
@@ -797,7 +802,6 @@ func test__assert_signal_emitted_with_parameters__fails_when_not_all_paramters_m
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
 	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1, 0, 3])
 	assert_fail()
-
 
 func test__assert_signal_emitted_with_parameters__can_check_multiple_emission():
 	gr.test_gut.watch_signals(gr.signal_object)
