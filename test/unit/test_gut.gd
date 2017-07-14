@@ -601,13 +601,13 @@ func test_get_set_test_to_run():
 	assert_pass(4)
 
 func test_setting_name_will_run_only_matching_tests():
-	gr.test_gut.add_script('res://test/unit/test_sample_all_passed.gd')
+	gr.test_gut.add_script('res://test/samples/test_sample_all_passed.gd')
 	gr.test_gut.set_unit_test_name('test_works')
 	gr.test_gut.test_scripts()
 	gut.assert_eq(gr.test_gut.get_test_count(), 1)
 
 func test_setting_name_matches_partial():
-	gr.test_gut.add_script('res://test/unit/test_sample_all_passed.gd')
+	gr.test_gut.add_script('res://test/samples/test_sample_all_passed.gd')
 	gr.test_gut.set_unit_test_name('two')
 	gr.test_gut.test_scripts()
 	gut.assert_eq(gr.test_gut.get_test_count(), 1)
@@ -790,7 +790,7 @@ func test__assert_signal_emitted_with_parameters__fails_when_signal_not_emitted(
 	gr.test_gut.watch_signals(gr.signal_object)
 	gr.test_gut.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2])
 	assert_fail()
-	
+
 func test__assert_signal_emitted_with_parameters__fails_when_paramters_dont_match():
 	gr.test_gut.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
