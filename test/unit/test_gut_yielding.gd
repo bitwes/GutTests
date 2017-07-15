@@ -29,11 +29,11 @@ func test_setting_yield_time_twice_resets_time():
 	gut.end_yielded_test()
 
 func test_wait_for_continue_click():
-	gut.assert_eq(1, 1, 'some simple assert')
+	assert_eq(1, 1, 'some simple assert')
 	gut.pause_before_teardown()
 
 func test_can_pause_twice():
-	gut.assert_eq(2, 2, 'Another simple assert')
+	assert_eq(2, 2, 'Another simple assert')
 	gut.pause_before_teardown()
 
 func test_will_wait_when_yielding():

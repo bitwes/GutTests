@@ -117,14 +117,14 @@ func print_test_gut_info():
 
 # convinience method to assert the number of failures on the gr.test_gut object.
 func assert_fail(count=1, msg=''):
-	assert_eq(gr.test_gut.get_fail_count(), count, 'failures:  ' + msg)
-	if(gr.test_gut.get_fail_count() != count):
+	assert_eq(gr.test.get_fail_count(), count, 'failures:  ' + msg)
+	if(gr.test.get_fail_count() != count):
 		print_test_gut_info()
 
 # convinience method to assert the number of passes on the gr.test_gut object.
 func assert_pass(count=1, msg=''):
-	assert_eq(gr.test_gut.get_pass_count(), count, 'passes:  ' + msg)
-	if(gr.test_gut.get_pass_count() != count):
+	assert_eq(gr.test.get_pass_count(), count, 'passes:  ' + msg)
+	if(gr.test.get_pass_count() != count):
 		print_test_gut_info()
 
 # ------------------------------
@@ -527,7 +527,7 @@ func test_script_object_added_to_tree():
 
 func test_pending_increments_pending_count():
 	gr.test.pending()
-	assert_eq(gr.test_gut.get_pending_count(), 1, 'One test should have been marked as pending')
+	assert_eq(gr.test.get_pending_count(), 1, 'One test should have been marked as pending')
 
 func test_pending_accepts_text():
 	pending("This is a pending test.  You should see this text in the results.")
@@ -612,7 +612,7 @@ func test_setting_name_will_run_only_matching_tests():
 	assert_eq(gr.test_gut.get_test_count(), 1)
 
 func test_setting_name_matches_partial():
-	gr.test_gut.add_script('res://test/unit/test_sample_all_passed.gd')
+	gr.test_gut.add_script('res://test/samples/test_sample_all_passed.gd')
 	gr.test_gut.set_unit_test_name('two')
 	gr.test_gut.test_scripts()
 	assert_eq(gr.test_gut.get_test_count(), 1)
@@ -690,7 +690,7 @@ func test_directories123_defined_in_editor_are_loaded_on_ready():
 	t.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir1 script')
 	t.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir2 script')
 	t.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir3 script')
-	assert_eq(g.get_pass_count(), 3, 'they should have passed')
+	assert_eq(t.get_pass_count(), 3, 'they should have passed')
 
 # ^ aaaand then we test 2 more.
 func test_directories456_defined_in_editor_are_loaded_on_ready():
@@ -705,7 +705,7 @@ func test_directories456_defined_in_editor_are_loaded_on_ready():
 	t.assert_has(g._test_scripts, 'res://test_dir_load/test_samples.gd', 'Should have dir4 script')
 	t.assert_has(g._test_scripts, 'res://test/unit/test_gut.gd', 'Should have dir5 script')
 	t.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir6 script')
-	assert_eq(g.get_pass_count(), 3, 'they should have passed')
+	assert_eq(t.get_pass_count(), 3, 'they should have passed')
 
 
 # ------------------------------
