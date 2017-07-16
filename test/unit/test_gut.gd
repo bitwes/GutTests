@@ -29,10 +29,6 @@ class HasFixedProcessMethod:
 		fixed_process_called_count += 1
 		delta_sum += delta
 
-
-
-
-
 #------------------------------
 # Utility methods/variables
 #------------------------------
@@ -91,7 +87,7 @@ func setup():
 	counts.setup_count += 1
 	gr.test_finished_called = false
 	gr.test_gut = get_a_gut()
-	gr.signal_object = SignalObject.new()
+	#gr.signal_object = SignalObject.new()
 	gr.test = Test.new()
 	gr.test.gut = gr.test_gut
 
@@ -334,9 +330,6 @@ func test_asserts_on_test_object():
 	f.close()
 	assert_file_not_empty(path)
 
-	var obj = HasGetSetThatWorks.new()
-	assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-
 # ------------------------------
 # Loading diretories
 # ------------------------------
@@ -392,14 +385,14 @@ func test_directories456_defined_in_editor_are_loaded_on_ready():
 	t.assert_has(g._test_scripts, 'res://test/integration/test_sample_all_passed_integration.gd', 'Should have dir6 script')
 	assert_eq(t.get_pass_count(), 3, 'they should have passed')
 
-
-
-
+# ------------------------------
+# Signal tests
+# ------------------------------
 func test_when_moving_to_next_test_watched_signals_are_cleared():
 	gr.test_gut.add_script('res://test/unit/verify_signal_watches_are_cleared.gd')
 	gr.test_gut.test_scripts()
 	assert_eq(gr.test_gut.get_pass_count(), 1, 'One test should have passed.')
-	assert_eq(gr.test_gut.get_fail_count(), 1, 'One test should have failed.')
+	assert_eq(gr.test_gut.get_fail_count(), 1, 'One failure for not watching anymore.')
 
 #-------------------------------------------------------------------------------
 #
