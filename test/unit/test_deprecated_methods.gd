@@ -1,5 +1,8 @@
 extends "res://addons/gut/test.gd"
 
+var Gut = load('res://addons/Gut/gut.gd')
+
+var _pass_count = 0
 # Returns a new gut object, all setup for testing.
 func get_a_gut():
 	var g = Gut.new()
@@ -29,79 +32,80 @@ func postrun_teardown():
 func test_pending():
 	pending()
 
-
-
-
-# # see gut method
-# func assert_eq(got, expected, text=""):
+func _assert_pass():
+	pass
+#
+# # # see gut method
+# func test_assert_eq(got, expected, text=""):
 # 	gut.assert_eq(got, expected, text)
 #
+
 # # see gut method
-# func assert_ne(got, not_expected, text=""):
+# func test_assert_ne(got, not_expected, text=""):
 # 	gut.assert_ne(got, not_expected, text)
 #
 # # see gut method
-# func assert_gt(got, expected, text=""):
+# func test_assert_gt(got, expected, text=""):
 # 	gut.assert_gt(got, expected, text)
 #
 # # see gut method
-# func assert_lt(got, expected, text=""):
+# func test_assert_lt(got, expected, text=""):
 # 	gut.assert_lt(got, expected, text)
 #
 # # see gut method
-# func assert_true(got, text=""):
+# func test_assert_true(got, text=""):
 # 	gut.assert_true(got, text)
 #
 # # see gut method
-# func assert_false(got, text=""):
+# func test_assert_false(got, text=""):
 # 	gut.assert_false(got, text)
 #
 # # see gut method
-# func assert_between(got, expect_low, expect_high, text=""):
+# func test_assert_between(got, expect_low, expect_high, text=""):
 # 	gut.assert_between(got, expect_low, expect_high, text)
 #
 # # see gut method
-# func assert_file_exists(file_path):
+# func test_assert_file_exists(file_path):
 # 	gut.assert_file_exists(file_path)
 #
 # # see gut method
-# func assert_file_does_not_exist(file_path):
+# func test_assert_file_does_not_exist(file_path):
 # 	gut.assert_file_does_not_exist(file_path)
 #
 # # see gut method
-# func assert_file_empty(file_path):
+# func test_assert_file_empty(file_path):
 # 	gut.assert_file_empty(file_path)
 #
 # # see gut method
-# func assert_file_not_empty(file_path):
+# func test_assert_file_not_empty(file_path):
 # 	gut.assert_file_not_empty(file_path)
 #
 # # see gut method
-# func assert_get_set_methods(obj, property, default, set_to):
+# func test_assert_get_set_methods(obj, property, default, set_to):
 # 	gut.assert_get_set_methods(obj, property, default, set_to)
 #
-# func assert_has(obj, element, text=""):
+# func test_assert_has(obj, element, text=""):
 # 	gut.assert_has(obj, element, text)
 #
-# func assert_does_not_have(obj, element, text=""):
+# func test_assert_does_not_have(obj, element, text=""):
 # 	gut.assert_does_not_have(obj, element, text)
 #
 # func watch_signals(object):
 # 	gut.watch_signals(object)
 #
-# func assert_signal_emitted(object, signal_name, text=""):
+# func test_assert_signal_emitted(object, signal_name, text=""):
 # 	gut.assert_signal_emitted(object, signal_name, text)
 #
-# func assert_signal_emitted_with_parameters(object, signal_name, parameters, index=-1):
+# func test_assert_signal_emitted_with_parameters(object, signal_name, parameters, index=-1):
 # 	gut.assert_signal_emitted_with_parameters(object, signal_name, parameters, index)
 #
-# func assert_signal_not_emitted(object, signal_name, text=""):
+# func test_assert_signal_not_emitted(object, signal_name, text=""):
 # 	gut.assert_signal_not_emitted(object, signal_name, text)
 #
-# func assert_signal_emit_count(object, signal_name, times, text=""):
+# func test_assert_signal_emit_count(object, signal_name, times, text=""):
 # 	gut.assert_signal_emit_count(object, signal_name, times, text)
 #
-# func assert_has_signal(object, signal_name, text=""):
+# func test_assert_has_signal(object, signal_name, text=""):
 # 	gut.assert_has_signal(object, signal_name, text)
 #
 # func get_signal_parameters(object, signal_name, index=-1):

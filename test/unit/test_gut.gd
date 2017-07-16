@@ -121,6 +121,9 @@ func test_when_ignore_pauses_unset_it_unchecks_checkbox():
 	gr.test_gut.set_ignore_pause_before_teardown(false)
 	assert_false(gr.test_gut._ctrls.ignore_continue_checkbox.is_pressed())
 
+func test_get_current_script_object_returns_null_by_default():
+	assert_eq(gr.test_gut.get_current_script_object(), null)
+	# I don't know how to test this in other situations
 
 # ------------------------------
 # disable strict datatype comparisons
