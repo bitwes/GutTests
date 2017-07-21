@@ -32,11 +32,19 @@ class HasFixedProcessMethod:
 #------------------------------
 # Utility methods/variables
 #------------------------------
+# When these tests are ran in the context of other tests then the setup and
+# teardown counts can get out of whack which causes the last test in here
+# to fail.  These counts are used to adjust the values tested against.
+var starting_counts = {
+	setup_count = 0,
+	teardown_count = 0
+}
+
 var counts = {
 	setup_count = 0,
 	teardown_count = 0,
 	prerun_setup_count = 0,
-	postrun_teardown_count = 0,
+	postrun_teardown_count = 0
 }
 
 # GlobalReset(gr) variables to be used by tests.
@@ -48,6 +56,7 @@ var gr = {
 	signal_object = null,
 	test = null
 }
+
 
 func callback_for_test_finished():
 	gr.test_finished_called = true
@@ -84,6 +93,11 @@ func assert_pass(count=1, msg=''):
 # ------------------------------
 # Setup/Teardown
 # ------------------------------
+func prerun_setup():
+	starting_counts.setup_count = gut.get_test_count()
+	starting_counts.teardown_count = gut.get_test_count()
+	counts.prerun_setup_count += 1
+
 func setup():
 	counts.setup_count += 1
 	gr.test_finished_called = false
@@ -95,9 +109,6 @@ func setup():
 func teardown():
 	counts.teardown_count += 1
 	gr.test_gut.queue_free()
-
-func prerun_setup():
-	counts.prerun_setup_count += 1
 
 func postrun_teardown():
 	counts.postrun_teardown_count += 1
@@ -147,7 +158,6 @@ func test_file_touch_creates_file():
 	gut.file_touch(path)
 	gr.test.assert_file_exists(path)
 	assert_pass()
-
 
 func test_file_delete_kills_file():
 	var path = 'user://gut_test_file_delete.txt'
@@ -250,7 +260,6 @@ func test_asserts_on_test_object():
 	f.close()
 	assert_file_exists(path)
 
-
 	var path = 'user://gut_test_empty.txt'
 	var f = File.new()
 	f.open(path, f.WRITE)
@@ -263,6 +272,12 @@ func test_asserts_on_test_object():
 	f.store_8(1)
 	f.close()
 	assert_file_not_empty(path)
+
+func test_gut_clears_test_instances_between_runs():
+	gr.test_gut.add_script('res://test/samples/test_sample_all_passed.gd')
+	gr.test_gut.test_scripts()
+	gr.test_gut.test_scripts()
+	assert_eq(gr.test_gut._test_script_objects.size(), 1, 'The should only be one test script after a second run')
 
 # ------------------------------
 # Loading diretories
@@ -339,6 +354,6 @@ func test_verify_results():
 	gut.p("/*THESE SHOULD ALL PASS, IF NOT THEN SOMETHING IS BROKEN*/")
 	gut.p("/*These counts will be off if another script was run before this one.*/")
 	assert_eq(1, counts.prerun_setup_count, "Prerun setup should have been called once")
-	assert_eq(gut.get_test_count(), counts.setup_count, "Setup should have been called once for each test")
+	assert_eq(gut.get_test_count() - starting_counts.setup_count, counts.setup_count, "Setup should have been called once for each test")
 	# teardown for this test hasn't been run yet.
-	assert_eq(gut.get_test_count() -1, counts.teardown_count, "Teardown should have been called one less time.")
+	assert_eq(gut.get_test_count() -1 - starting_counts.teardown_count, counts.teardown_count, "Teardown should have been called one less time.")
