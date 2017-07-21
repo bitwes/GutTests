@@ -1,5 +1,6 @@
 extends "res://addons/gut/test.gd"
 
+var Gut = load('res://addons/Gut/gut.gd')
 var Test = load('res://addons/Gut/test.gd')
 
 # Constants so I don't get false pass/fail with misspellings
@@ -30,20 +31,29 @@ class SignalObject:
 # teardown methods.
 var gr = {
 	test = null,
-    signal_object = null
+    signal_object = null,
+	test_with_gut = null
 }
 
+# Prints out gr.test_gut assert results, used by assert_fail and assert_pass
+# func print_test_info():
+# 	var text_array = gr.test_gut._log_text.split("\n")
+# 	gut.p('Results of gr.test_gut asserts')
+# 	gut.p('------------------------------')
+# 	for i in range(text_array.size()):
+# 		gut.p(text_array[i])
+
 # convinience method to assert the number of failures on the gr.test_gut object.
-func assert_fail(count=1, msg=''):
-	assert_eq(gr.test.get_fail_count(), count, 'failures:  ' + msg)
-	if(gr.test.get_fail_count() != count):
-		print_test_gut_info()
+func assert_fail(t, count=1, msg=''):
+	assert_eq(t.get_fail_count(), count, 'failures:  ' + msg)
+	#if(gr.test.get_fail_count() != count):
+	#	print_test_gut_info()
 
 # convinience method to assert the number of passes on the gr.test_gut object.
-func assert_pass(count=1, msg=''):
-	assert_eq(gr.test.get_pass_count(), count, 'passes:  ' + msg)
-	if(gr.test.get_pass_count() != count):
-		print_test_gut_info()
+func assert_pass(t, count=1, msg=''):
+	assert_eq(t.get_pass_count(), count, 'passes:  ' + msg)
+	#if(gr.test.get_pass_count() != count):
+	#	print_test_gut_info()
 
 # #############
 # Seutp/Teardown
@@ -53,6 +63,8 @@ func prerun_setup():
 
 func setup():
 	gr.test = Test.new()
+	gr.test_with_gut = Test.new()
+	gr.test_with_gut.gut = Gut.new()
 	gr.signal_object = SignalObject.new()
 
 func teardown():
@@ -69,88 +81,88 @@ func postrun_teardown():
 # ------------------------------
 func test_assert_eq_number_not_equal():
 	gr.test.assert_eq(1, 2)
-	assert_fail(1, "Should fail.  1 != 2")
+	assert_fail(gr.test, 1, "Should fail.  1 != 2")
 
 func test_assert_eq_number_equal():
 	gr.test.assert_eq('asdf', 'asdf')
-	assert_pass(1, "Should pass")
+	assert_pass(gr.test, 1, "Should pass")
 
 func test_assert_ne_number_not_equal():
 	gr.test.assert_ne(1, 2)
-	assert_pass(1, "Should pass, 1 != 2")
+	assert_pass(gr.test, 1, "Should pass, 1 != 2")
 
 func test_assert_ne_number_equal():
 	gr.test.assert_ne(1, 1, "Should fail")
-	assert_fail(1, '1 = 1')
+	assert_fail(gr.test, 1, '1 = 1')
 
 func test_assert_gt_number_with_gt():
 	gr.test.assert_gt(2, 1, "Should Pass")
-	assert_pass(1, '2 > 1')
+	assert_pass(gr.test, 1, '2 > 1')
 
 func test_assert_gt_number_with_lt():
 	gr.test.assert_gt(1, 2, "Should fail")
-	assert_fail(1, '1 < 2')
+	assert_fail(gr.test, 1, '1 < 2')
 
 func test_assert_lt_number_with_lt():
 	gr.test.assert_lt(1, 2, "Should Pass")
-	assert_pass(1, '1 < 2')
+	assert_pass(gr.test, 1, '1 < 2')
 
 func test_assert_lt_number_with_gt():
 	gr.test.assert_lt(2, 1, "Should fail")
-	assert_fail(1, '2 > 1')
+	assert_fail(gr.test, 1, '2 > 1')
 
 func test_between_with_number_between():
 	gr.test.assert_between(2, 1, 3, "Should pass, 2 between 1 and 3")
-	assert_pass(1, "Should pass, 2 between 1 and 3")
+	assert_pass(gr.test, 1, "Should pass, 2 between 1 and 3")
 
 func test_between_with_number_lt():
 	gr.test.assert_between(0, 1, 3, "Should fail")
-	assert_fail(1, '0 not between 1 and 3')
+	assert_fail(gr.test, 1, '0 not between 1 and 3')
 
 func test_between_with_number_gt():
 	gr.test.assert_between(4, 1, 3, "Should fail")
-	assert_fail(1, '4 not between 1 and 3')
+	assert_fail(gr.test, 1, '4 not between 1 and 3')
 
 func test_between_with_number_at_high_end():
 	gr.test.assert_between(3, 1, 3, "Should pass")
-	assert_pass(1, '3 is between 1 and 3')
+	assert_pass(gr.test, 1, '3 is between 1 and 3')
 
 func test_between_with_number_at_low_end():
 	gr.test.assert_between(1, 1, 3, "Should pass")
-	assert_pass(1, '1 between 1 and 3')
+	assert_pass(gr.test, 1, '1 between 1 and 3')
 
 func test_between_with_invalid_number_range():
 	gr.test.assert_between(4, 8, 0, "Should fail")
-	assert_fail(1, '8 is starting number and is not less than 0')
+	assert_fail(gr.test, 1, '8 is starting number and is not less than 0')
 
 # ------------------------------
 # float tests
 # ------------------------------
 func test_float_eq():
 	gr.test.assert_eq(1.0, 1.0)
-	assert_pass(1)
+	assert_pass(gr.test)
 
 func test_float_eq_fail():
 	gr.test.assert_eq(.19, 1.9)
-	assert_fail(1)
+	assert_fail(gr.test)
 
 func test_float_ne():
 	gr.test.assert_ne(0.9, .009)
-	assert_pass(1)
+	assert_pass(gr.test)
 
 func test_cast_float_eq_pass():
 	gr.test.assert_eq(float('0.92'), 0.92)
-	assert_pass(1)
+	assert_pass(gr.test)
 
 func test_fail_compare_float_cast_as_int():
 	# int cast will make it 0
 	gr.test.assert_eq(int(0.5), 0.5)
-	assert_fail(1)
+	assert_fail(gr.test)
 
 func test_cast_int_math_eq_float():
 	var i = 2
 	gr.test.assert_eq(5 / float(i), 2.5)
-	assert_pass(1)
+	assert_pass(gr.test)
 
 
 
@@ -162,77 +174,77 @@ func test_cast_int_math_eq_float():
 
 func test_assert_eq_string_not_equal():
 	gr.test.assert_eq("one", "two", "Should Fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_assert_eq_string_equal():
 	gr.test.assert_eq("one", "one", "Should Pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_ne_string_not_equal():
 	gr.test.assert_ne("one", "two", "Should Pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_ne_string_equal():
 	gr.test.assert_ne("one", "one", "Should Fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_assert_gt_string_with_gt():
 	gr.test.assert_gt("b", "a", "Should Pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_gt_string_with_lt():
 	gr.test.assert_gt("a", "b", "Sould Fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_assert_lt_string_with_lt():
 	gr.test.assert_lt("a", "b", "Should Pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_lt_string_with_gt():
 	gr.test.assert_lt("b", "a", "Should Fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_between_with_string_between():
 	gr.test.assert_between('b', 'a', 'c', "Should pass, 2 between 1 and 3")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_between_with_string_lt():
 	gr.test.assert_between('a', 'b', 'd', "Should fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_between_with_string_gt():
 	gr.test.assert_between('z', 'a', 'c', "Should fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_between_with_string_at_high_end():
 	gr.test.assert_between('c', 'a', 'c', "Should pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_between_with_string_at_low_end():
 	gr.test.assert_between('a', 'a', 'c', "Should pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_between_with_invalid_string_range():
 	gr.test.assert_between('q', 'z', 'a', "Should fail")
-	assert_fail()
+	assert_fail(gr.test)
 # ------------------------------
 # boolean tests
 # ------------------------------
 func test_assert_true_with_true():
 	gr.test.assert_true(true, "Should pass, true is true")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_true_with_false():
 	gr.test.assert_true(false, "Should fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_assert_flase_with_true():
 	gr.test.assert_false(true, "Should fail")
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_assert_false_with_false():
 	gr.test.assert_false(false, "Should pass")
-	assert_pass()
+	assert_pass(gr.test)
 
 # ------------------------------
 # assert_has
@@ -240,74 +252,74 @@ func test_assert_false_with_false():
 func test_assert_has_passes_when_array_has_element():
 	var array = [0]
 	gr.test.assert_has(array, 0, 'It should have zero')
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_has_fails_when_it_does_not_have_element():
 	var array = [0]
 	gr.test.assert_has(array, 1, 'Should not have it')
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_assert_not_have_passes_when_not_in_there():
 	var array = [0, 3, 5]
 	gr.test.assert_does_not_have(array, 2, 'Should not have it.')
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_assert_not_have_fails_when_in_there():
 	var array = [1, 10, 20]
 	gr.test.assert_does_not_have(array, 20, 'Should not have it.')
-	assert_fail()
+	assert_fail(gr.test)
 
 # ------------------------------
 # Datatype comparison fail.
 # ------------------------------
 func test_dt_string_number_eq():
 	gr.test.assert_eq('1', 1)
-	assert_fail(1)
+	assert_fail(gr.test)
 
 func test_dt_string_number_ne():
 	gr.test.assert_ne('2', 1)
-	assert_fail(1)
+	assert_fail(gr.test)
 
 func test_dt_string_number_assert_gt():
 	gr.test.assert_gt('3', 1)
-	assert_fail(1)
+	assert_fail(gr.test)
 
 func test_dt_string_number_func_assert_lt():
 	gr.test.assert_lt('1', 3)
-	assert_fail(1)
+	assert_fail(gr.test)
 
 func test_dt_string_number_func_assert_between():
 	gr.test.assert_between('a', 5, 6)
 	gr.test.assert_between(1, 2, 'c')
-	assert_fail(2)
+	assert_fail(gr.test, 2)
 
 func test_dt_can_compare_to_null():
 	gr.test.assert_ne(Node2D.new(), null)
 	gr.test.assert_ne(null, Node2D.new())
-	assert_pass(2)
+	assert_pass(gr.test, 2)
 
 # ------------------------------
 # Misc tests
 # ------------------------------
 func test_can_call_eq_without_text():
 	gr.test.assert_eq(1, 1)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_can_call_ne_without_text():
 	gr.test.assert_ne(1, 2)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_can_call_true_without_text():
 	gr.test.assert_true(true)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_can_call_false_without_text():
 	gr.test.assert_false(false)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_script_object_added_to_tree():
 	gr.test.assert_ne(get_tree(), null, "The tree should not be null if we are added to it")
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_pending_increments_pending_count():
 	gr.test.pending()
@@ -315,10 +327,6 @@ func test_pending_increments_pending_count():
 
 func test_pending_accepts_text():
 	pending("This is a pending test.  You should see this text in the results.")
-
-
-
-
 
 
 #--------------------------------------
@@ -344,100 +352,172 @@ class HasGetSetThatWorks:
 		return _thing
 	func set_thing(new_thing):
 		_thing = new_thing
+
 # ------------------------------
 # Get/Set Assert
 # ------------------------------
 func test_fail_if_get_set_not_defined():
 	var obj = NoGetNoSet.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-	assert_fail(2)
+	assert_fail(gr.test, 2)
 
 func test_fail_if_has_get_and_not_set():
 	var obj = HasGetNotSet.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_fail_if_default_wrong_and_get_dont_work():
 	var obj = HasGetAndSetThatDontWork.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-	assert_fail(2)
+	assert_fail(gr.test, 2)
 
 func test_fail_if_default_wrong():
 	var obj = HasGetSetThatWorks.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'not the right default', 'another thing')
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_pass_if_all_get_sets_are_aligned():
 	var obj = HasGetSetThatWorks.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-	assert_pass(4)
+	assert_pass(gr.test, 4)
+
+
+# ------------------------------
+# File asserts
+# ------------------------------
+func test__assert_file_exists__with_file_dne():
+	gr.test_with_gut.assert_file_exists('user://file_dne.txt')
+	assert_fail(gr.test_with_gut)
+
+func test__assert_file_exists__with_file_exists():
+	var path = 'user://gut_test_file.txt'
+	var f = File.new()
+	f.open(path, f.WRITE)
+	f.close()
+	gr.test_with_gut.assert_file_exists(path)
+	assert_pass(gr.test_with_gut)
+
+func test__assert_file_dne__with_file_dne():
+	gr.test_with_gut.assert_file_does_not_exist('user://file_dne.txt')
+	assert_pass(gr.test_with_gut)
+
+func test__assert_file_dne__with_file_exists():
+	var path = 'user://gut_test_file2.txt'
+	var f = File.new()
+	f.open(path, f.WRITE)
+	f.close()
+	gr.test_with_gut.assert_file_does_not_exist(path)
+	assert_fail(gr.test_with_gut)
+
+func test__assert_file_empty__with_empty_file():
+	var path = 'user://gut_test_empty.txt'
+	var f = File.new()
+	f.open(path, f.WRITE)
+	f.close()
+	gr.test_with_gut.assert_file_empty(path)
+	assert_pass(gr.test_with_gut)
+
+func test__assert_file_empty__with_not_empty_file():
+	var path = 'user://gut_test_empty2.txt'
+	var f = File.new()
+	f.open(path, f.WRITE)
+	f.store_8(1)
+	f.close()
+	gr.test_with_gut.assert_file_empty(path)
+	assert_fail(gr.test_with_gut)
+
+func test__assert_file_empty__fails_when_file_dne():
+	var path = 'user://file_dne.txt'
+	gr.test_with_gut.assert_file_empty(path)
+	assert_fail(gr.test_with_gut)
+
+func test__assert_file_not_empty__with_empty_file():
+	var path = 'user://gut_test_empty3.txt'
+	var f = File.new()
+	f.open(path, f.WRITE)
+	f.close()
+	gr.test_with_gut.assert_file_not_empty(path)
+	assert_fail(gr.test_with_gut)
+
+func test__assert_file_not_empty__with_populated_file():
+	var path = 'user://gut_test_empty4.txt'
+	var f = File.new()
+	f.open(path, f.WRITE)
+	f.store_8(1)
+	f.close()
+	gr.test_with_gut.assert_file_not_empty(path)
+	assert_pass(gr.test_with_gut)
+
+func test__assert_file_not_empty__fails_when_file_dne():
+	var path = 'user://file_dne.txt'
+	gr.test_with_gut.assert_file_not_empty(path)
+	assert_fail(gr.test_with_gut)
+
 
 # ------------------------------
 # Signal Asserts
 # ------------------------------
-
-
 func test_when_object_not_being_watched__assert_signal_emitted__fails():
 	gr.test.assert_signal_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_when_signal_emitted__assert_signal_emitted__passes():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
 	gr.test.assert_signal_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_when_signal_not_emitted__assert_signal_emitted__fails():
 	gr.test.watch_signals(gr.signal_object)
 	gr.test.assert_signal_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_when_object_does_not_have_signal__assert_signal_emitted__fails():
 	gr.test.watch_signals(gr.signal_object)
 	gr.test.assert_signal_emitted(gr.signal_object, 'signal_does_not_exist')
-	assert_fail(1, 'Only the failure that it does not have signal should fire.')
+	assert_fail(gr.test, 1, 'Only the failure that it does not have signal should fire.')
 
 func test_when_signal_emitted__assert_signal_not_emitted__fails():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
 	gr.test.assert_signal_not_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_when_signal_not_emitted__assert_signal_not_emitted__fails():
 	gr.test.watch_signals(gr.signal_object)
 	gr.test.assert_signal_not_emitted(gr.signal_object, SIGNALS.SOME_SIGNAL)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_when_object_does_not_have_signal__assert_signal_not_emitted__fails():
 	gr.test.watch_signals(gr.signal_object)
 	gr.test.assert_signal_not_emitted(gr.signal_object, 'signal_does_not_exist')
-	assert_fail(1, 'Only the failure that it does not have signal should fire.')
+	assert_fail(gr.test, 1, 'Only the failure that it does not have signal should fire.')
 
 func test_when_signal_emitted_once__assert_signal_emit_count__passes_with_1():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
 	gr.test.assert_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL, 1)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test_when_signal_emitted_twice__assert_signal_emit_count__fails_with_1():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL)
 	gr.test.assert_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL, 1)
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_when_object_does_not_have_signal__assert_signal_emit_count__fails():
 	gr.test.watch_signals(gr.signal_object)
 	gr.test.assert_signal_emit_count(gr.signal_object, 'signal_does_not_exist', 0)
-	assert_fail()
+	assert_fail(gr.test)
 
 func test__assert_has_signal__passes_when_it_has_the_signal():
 	gr.test.assert_has_signal(gr.signal_object, SIGNALS.NO_PARAMETERS)
-	assert_pass()
+	assert_pass(gr.test)
 
 func test__assert_has_signal__fails_when_it_does_not_have_the_signal():
 	gr.test.assert_has_signal(gr.signal_object, 'signal does not exist')
-	assert_fail()
+	assert_fail(gr.test)
 
 func test_can_get_signal_emit_counts():
 	gr.test.watch_signals(gr.signal_object)
@@ -447,36 +527,36 @@ func test_can_get_signal_emit_counts():
 
 func test__assert_signal_emitted_with_paramters__fails_when_object_not_watched():
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [])
-	assert_fail()
+	assert_fail(gr.test)
 
 func test__assert_signal_emitted_with_parameters__passes_when_paramters_match():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1])
-	assert_pass()
+	assert_pass(gr.test)
 
 func test__assert_signal_emitted_with_parameters__passes_when_all_paramters_match():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1, 2, 3])
-	assert_pass()
+	assert_pass(gr.test)
 
 func test__assert_signal_emitted_with_parameters__fails_when_signal_not_emitted():
 	gr.test.watch_signals(gr.signal_object)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2])
-	assert_fail()
+	assert_fail(gr.test)
 
 func test__assert_signal_emitted_with_parameters__fails_when_paramters_dont_match():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2])
-	assert_fail()
+	assert_fail(gr.test)
 
 func test__assert_signal_emitted_with_parameters__fails_when_not_all_paramters_match():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1, 0, 3])
-	assert_fail()
+	assert_fail(gr.test)
 
 func test__assert_signal_emitted_with_parameters__can_check_multiple_emission():
 	gr.test.watch_signals(gr.signal_object)
@@ -484,7 +564,7 @@ func test__assert_signal_emitted_with_parameters__can_check_multiple_emission():
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 2)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [1], 0)
 	gr.test.assert_signal_emitted_with_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, [2], 1)
-	assert_pass(2)
+	assert_pass(gr.test, 2)
 
 func test__get_signal_emit_count__returns_neg_1_when_not_watched():
 	assert_eq(gr.test.get_signal_emit_count(gr.signal_object, SIGNALS.SOME_SIGNAL), -1)

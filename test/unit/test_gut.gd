@@ -80,6 +80,7 @@ func assert_pass(count=1, msg=''):
 	if(gr.test.get_pass_count() != count):
 		print_test_gut_info()
 
+
 # ------------------------------
 # Setup/Teardown
 # ------------------------------
@@ -137,76 +138,6 @@ func test_when_strict_disabled_can_compare_int_and_float():
 	gr.test.assert_eq(1.0, 1)
 	assert_pass()
 
-# ------------------------------
-# File asserts
-# ------------------------------
-func test__assert_file_exists__with_file_dne():
-	gr.test.assert_file_exists('user://file_dne.txt')
-	assert_fail()
-
-func test__assert_file_exists__with_file_exists():
-	var path = 'user://gut_test_file.txt'
-	var f = File.new()
-	f.open(path, f.WRITE)
-	f.close()
-	gr.test.assert_file_exists(path)
-	assert_pass()
-
-func test__assert_file_dne__with_file_dne():
-	gr.test.assert_file_does_not_exist('user://file_dne.txt')
-	assert_pass()
-
-func test__assert_file_dne__with_file_exists():
-	var path = 'user://gut_test_file2.txt'
-	var f = File.new()
-	f.open(path, f.WRITE)
-	f.close()
-	gr.test.assert_file_does_not_exist(path)
-	assert_fail()
-
-func test__assert_file_empty__with_empty_file():
-	var path = 'user://gut_test_empty.txt'
-	var f = File.new()
-	f.open(path, f.WRITE)
-	f.close()
-	gr.test.assert_file_empty(path)
-	assert_pass()
-
-func test__assert_file_empty__with_not_empty_file():
-	var path = 'user://gut_test_empty2.txt'
-	var f = File.new()
-	f.open(path, f.WRITE)
-	f.store_8(1)
-	f.close()
-	gr.test.assert_file_empty(path)
-	assert_fail()
-
-func test__assert_file_empty__fails_when_file_dne():
-	var path = 'user://file_dne.txt'
-	gr.test.assert_file_empty(path)
-	assert_fail()
-
-func test__assert_file_not_empty__with_empty_file():
-	var path = 'user://gut_test_empty3.txt'
-	var f = File.new()
-	f.open(path, f.WRITE)
-	f.close()
-	gr.test.assert_file_not_empty(path)
-	assert_fail()
-
-func test__assert_file_not_empty__with_populated_file():
-	var path = 'user://gut_test_empty4.txt'
-	var f = File.new()
-	f.open(path, f.WRITE)
-	f.store_8(1)
-	f.close()
-	gr.test.assert_file_not_empty(path)
-	assert_pass()
-
-func test__assert_file_not_empty__fails_when_file_dne():
-	var path = 'user://file_dne.txt'
-	gr.test.assert_file_not_empty(path)
-	assert_fail()
 
 # ------------------------------
 # File utilities
