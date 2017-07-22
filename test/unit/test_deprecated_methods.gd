@@ -29,101 +29,14 @@ func postrun_teardown():
 # #############
 # Tests
 # #############
-func test_pending():
-	pending()
+func test_assert_eq_pass():
+	gut.assert_eq(1, 1)
 
-func _assert_pass():
-	pass
-#
-# # # see gut method
-# func test_assert_eq(got, expected, text=""):
-# 	gut.assert_eq(got, expected, text)
-#
+func test_assert_eq_fail():
+	gut.assert_eq(1, 2)
 
-# # see gut method
-# func test_assert_ne(got, not_expected, text=""):
-# 	gut.assert_ne(got, not_expected, text)
-#
-# # see gut method
-# func test_assert_gt(got, expected, text=""):
-# 	gut.assert_gt(got, expected, text)
-#
-# # see gut method
-# func test_assert_lt(got, expected, text=""):
-# 	gut.assert_lt(got, expected, text)
-#
-# # see gut method
-# func test_assert_true(got, text=""):
-# 	gut.assert_true(got, text)
-#
-# # see gut method
-# func test_assert_false(got, text=""):
-# 	gut.assert_false(got, text)
-#
-# # see gut method
-# func test_assert_between(got, expect_low, expect_high, text=""):
-# 	gut.assert_between(got, expect_low, expect_high, text)
-#
-# # see gut method
-# func test_assert_file_exists(file_path):
-# 	gut.assert_file_exists(file_path)
-#
-# # see gut method
-# func test_assert_file_does_not_exist(file_path):
-# 	gut.assert_file_does_not_exist(file_path)
-#
-# # see gut method
-# func test_assert_file_empty(file_path):
-# 	gut.assert_file_empty(file_path)
-#
-# # see gut method
-# func test_assert_file_not_empty(file_path):
-# 	gut.assert_file_not_empty(file_path)
-#
-# # see gut method
-# func test_assert_get_set_methods(obj, property, default, set_to):
-# 	gut.assert_get_set_methods(obj, property, default, set_to)
-#
-# func test_assert_has(obj, element, text=""):
-# 	gut.assert_has(obj, element, text)
-#
-# func test_assert_does_not_have(obj, element, text=""):
-# 	gut.assert_does_not_have(obj, element, text)
-#
-# func watch_signals(object):
-# 	gut.watch_signals(object)
-#
-# func test_assert_signal_emitted(object, signal_name, text=""):
-# 	gut.assert_signal_emitted(object, signal_name, text)
-#
-# func test_assert_signal_emitted_with_parameters(object, signal_name, parameters, index=-1):
-# 	gut.assert_signal_emitted_with_parameters(object, signal_name, parameters, index)
-#
-# func test_assert_signal_not_emitted(object, signal_name, text=""):
-# 	gut.assert_signal_not_emitted(object, signal_name, text)
-#
-# func test_assert_signal_emit_count(object, signal_name, times, text=""):
-# 	gut.assert_signal_emit_count(object, signal_name, times, text)
-#
-# func test_assert_has_signal(object, signal_name, text=""):
-# 	gut.assert_has_signal(object, signal_name, text)
-#
-# func get_signal_parameters(object, signal_name, index=-1):
-# 	return gut.get_signal_parameters(object, signal_name, index)
-# #-------------------------------------------------------------------------------
-# # Returns the number of times a signal was emitted.  -1 returned if the object
-# # is not being watched.
-# #-------------------------------------------------------------------------------
-# func get_signal_emit_count(object, signal_name):
-# 	return gut.get_signal_emit_count(object, signal_name)
-#
-# # see gut method
-# func pending(text=""):
-# 	gut.pending(text)
-#
-# # I think this reads better than set_yield_time, but don't want to break anything
-# func yield_for(time, msg=''):
-# 	return gut.set_yield_time(time, msg)
-#
-# func end_test():
-# 	gut.end_yielded_test()
+func test_assert_true_pass():
+	gut.assert_true(true)
+
+func test_assert_true_fail():
+	gut.assert_true(false)
