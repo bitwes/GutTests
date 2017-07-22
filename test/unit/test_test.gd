@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 var Gut = load('res://addons/Gut/gut.gd')
 var Test = load('res://addons/Gut/test.gd')
+var _print_all_subtests = true
 
 # Constants so I don't get false pass/fail with misspellings
 const SIGNALS = {
@@ -35,25 +36,34 @@ var gr = {
 	test_with_gut = null
 }
 
-# Prints out gr.test_gut assert results, used by assert_fail and assert_pass
-# func print_test_info():
-# 	var text_array = gr.test_gut._log_text.split("\n")
-# 	gut.p('Results of gr.test_gut asserts')
-# 	gut.p('------------------------------')
-# 	for i in range(text_array.size()):
-# 		gut.p(text_array[i])
+func print_fail_pass_text(t):
+	for i in range(t._fail_pass_text.size()):
+		gut.p('sub-test:  ' + t._fail_pass_text[i], gut.LOG_LEVEL_FAIL_ONLY)
+
+func assert_fail_pass(t, fail_count, pass_count, msg=''):
+	var self_fail_count = get_fail_count()
+	assert_eq(t.get_fail_count(), fail_count, 'Bad FAIL COUNT:  ' + msg)
+	assert_eq(t.get_pass_count(), pass_count, 'Bad PASS COUNT:  ' + msg)
+	if(get_fail_count() != self_fail_count or _print_all_subtests):
+		print_fail_pass_text(t)
 
 # convinience method to assert the number of failures on the gr.test_gut object.
 func assert_fail(t, count=1, msg=''):
-	assert_eq(t.get_fail_count(), count, 'failures:  ' + msg)
-	#if(gr.test.get_fail_count() != count):
-	#	print_test_gut_info()
+	var self_fail_count = get_fail_count()
+	assert_eq(t.get_fail_count(), count, 'Bad FAIL COUNT:  ' + msg)
+	if(t.get_pass_count() > 0 and count != t.get_assert_count()):
+		assert_eq(t.get_pass_count(), 0, 'When checking for failures there should be no passing')
+	if(get_fail_count() != self_fail_count or _print_all_subtests):
+		print_fail_pass_text(t)
 
 # convinience method to assert the number of passes on the gr.test_gut object.
 func assert_pass(t, count=1, msg=''):
-	assert_eq(t.get_pass_count(), count, 'passes:  ' + msg)
-	#if(gr.test.get_pass_count() != count):
-	#	print_test_gut_info()
+	var self_fail_count = get_fail_count()
+	assert_eq(t.get_pass_count(), count, 'Bad PASS COUNT:  ' + msg)
+	if(t.get_fail_count() != 0 and count != t.get_assert_count()):
+		assert_eq(t.get_fail_count(), 0, 'When checking for passes there should be no failures.')
+	if(get_fail_count() != self_fail_count or _print_all_subtests):
+		print_fail_pass_text(t)
 
 # #############
 # Seutp/Teardown
@@ -163,9 +173,6 @@ func test_cast_int_math_eq_float():
 	var i = 2
 	gr.test.assert_eq(5 / float(i), 2.5)
 	assert_pass(gr.test)
-
-
-
 
 
 # ------------------------------
@@ -364,17 +371,17 @@ func test_fail_if_get_set_not_defined():
 func test_fail_if_has_get_and_not_set():
 	var obj = HasGetNotSet.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-	assert_fail(gr.test)
+	assert_fail_pass(gr.test, 1, 1)
 
 func test_fail_if_default_wrong_and_get_dont_work():
 	var obj = HasGetAndSetThatDontWork.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'something', 'another thing')
-	assert_fail(gr.test, 2)
+	assert_fail_pass(gr.test, 2, 2)
 
 func test_fail_if_default_wrong():
 	var obj = HasGetSetThatWorks.new()
 	gr.test.assert_get_set_methods(obj, 'thing', 'not the right default', 'another thing')
-	assert_fail(gr.test)
+	assert_fail_pass(gr.test, 1, 3)
 
 func test_pass_if_all_get_sets_are_aligned():
 	var obj = HasGetSetThatWorks.new()
@@ -573,3 +580,80 @@ func test_can_get_signal_parameters():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
 	assert_eq(gr.test.get_signal_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, 0), [1, 2, 3])
+
+# ------------------------------
+# Extends Asserts
+# ------------------------------
+class BaseClass:
+	extends Node2D
+class ExtendsBaseClass:
+	extends BaseClass
+class HasSubclass1:
+	class SubClass:
+		var a = 1
+class HasSubclass2:
+	class SubClass:
+		var a = 2
+
+func test__assert_is_type_of__passes_when_class_extends_parent():
+	var node2d = Node2D.new()
+	gr.test.assert_is_type_of(node2d, Node2D)
+	assert_pass(gr.test)
+
+func test__assert_is_type_of__fails_when_class_does_not_extend_parent():
+	var lbl = Label.new()
+	gr.test.assert_is_type_of(lbl, TextEdit)
+	assert_fail(gr.test)
+
+func test__assert_is_type_of__passes__with_matching_primitves():
+	gr.test.assert_is_type_of([], [1, 2, 3])
+	gr.test.assert_is_type_of({}, {'one':1, 'two':2})
+	gr.test.assert_is_type_of(1, 10)
+	gr.test.assert_is_type_of('a', 'b')
+	gr.test.assert_is_type_of(2.7, .82)
+	assert_pass(gr.test, 5)
+
+func test__assert_is_type_of__fails_with_non_matching_primitives():
+	gr.test.assert_is_type_of([], {})
+	gr.test.assert_is_type_of({}, [])
+	gr.test.assert_is_type_of('a', 1)
+	gr.test.assert_is_type_of(1.5, 20)
+	gr.test.assert_is_type_of(Color(1,1,1), .01)
+	assert_fail(gr.test, 5)
+
+func test__assert_is_type_of__fails_with_primitves_and_classes():
+	gr.test.assert_is_type_of([], Node2D)
+	assert_fail(gr.test)
+
+func test__assrt_is_type_of__fails_when_compareing_object_to_primitives():
+	gr.test.assert_is_type_of(Node2D.new(), [])
+	gr.test.assert_is_type_of(TextEdit.new(), {})
+	assert_fail(gr.test, 2)
+
+func test__assert_is_type_of__fails_with_another_instance():
+	var node1 = Node2D.new()
+	var node2 = Node2D.new()
+	gr.test.assert_is_type_of(node1, node2)
+	assert_fail(gr.test)
+
+func test__assert_is_type_of__fails_if_parent_is_an_instance_of_a_non_parent_class():
+	var label = Label.new()
+	var text_box = TextEdit.new()
+	gr.test.assert_is_type_of(label, text_box)
+	assert_fail(gr.test)
+
+func test__assert_is_type_of__passes_with_deeper_inheritance():
+	var eb = ExtendsBaseClass.new()
+	gr.test.assert_is_type_of(eb, Node2D)
+	assert_pass(gr.test)
+
+func test__assert_is_type_of__fails_when_class_names_match_but_inheritance_does_not():
+	var a = HasSubclass1.SubClass.new()
+	var b = HasSubclass2.SubClass.new()
+	gr.test.assert_is_type_of(a, b)
+	assert_fail(gr.test)
+
+func test__assert_is_type_of__fails_when_class_names_match_but_inheritance_does_not__with_class():
+	var a = HasSubclass1.SubClass.new()
+	gr.test.assert_is_type_of(a, HasSubclass2.SubClass)
+	assert_fail(gr.test)
