@@ -595,65 +595,43 @@ class HasSubclass2:
 	class SubClass:
 		var a = 2
 
-func test__assert_is_type_of__passes_when_class_extends_parent():
+func test__assert_extends__passes_when_class_extends_parent():
 	var node2d = Node2D.new()
-	gr.test.assert_is_type_of(node2d, Node2D)
+	gr.test.assert_extends(node2d, Node2D)
 	assert_pass(gr.test)
 
-func test__assert_is_type_of__fails_when_class_does_not_extend_parent():
+func test__assert_extends__fails_when_class_does_not_extend_parent():
 	var lbl = Label.new()
-	gr.test.assert_is_type_of(lbl, TextEdit)
+	gr.test.assert_extends(lbl, TextEdit)
 	assert_fail(gr.test)
 
-func test__assert_is_type_of__passes__with_matching_primitves():
-	gr.test.assert_is_type_of([], [1, 2, 3])
-	gr.test.assert_is_type_of({}, {'one':1, 'two':2})
-	gr.test.assert_is_type_of(1, 10)
-	gr.test.assert_is_type_of('a', 'b')
-	gr.test.assert_is_type_of(2.7, .82)
-	assert_pass(gr.test, 5)
-
-func test__assert_is_type_of__fails_with_non_matching_primitives():
-	gr.test.assert_is_type_of([], {})
-	gr.test.assert_is_type_of({}, [])
-	gr.test.assert_is_type_of('a', 1)
-	gr.test.assert_is_type_of(1.5, 20)
-	gr.test.assert_is_type_of(Color(1,1,1), .01)
-	assert_fail(gr.test, 5)
-
-func test__assert_is_type_of__fails_with_primitves_and_classes():
-	gr.test.assert_is_type_of([], Node2D)
+func test__assert_extends__fails_with_primitves_and_classes():
+	gr.test.assert_extends([], Node2D)
 	assert_fail(gr.test)
 
-func test__assrt_is_type_of__fails_when_compareing_object_to_primitives():
-	gr.test.assert_is_type_of(Node2D.new(), [])
-	gr.test.assert_is_type_of(TextEdit.new(), {})
+func test__assert_extends__fails_when_compareing_object_to_primitives():
+	gr.test.assert_extends(Node2D.new(), [])
+	gr.test.assert_extends(TextEdit.new(), {})
 	assert_fail(gr.test, 2)
 
-func test__assert_is_type_of__fails_with_another_instance():
+func test__assert_extends__fails_with_another_instance():
 	var node1 = Node2D.new()
 	var node2 = Node2D.new()
-	gr.test.assert_is_type_of(node1, node2)
+	gr.test.assert_extends(node1, node2)
 	assert_fail(gr.test)
 
-func test__assert_is_type_of__fails_if_parent_is_an_instance_of_a_non_parent_class():
-	var label = Label.new()
-	var text_box = TextEdit.new()
-	gr.test.assert_is_type_of(label, text_box)
-	assert_fail(gr.test)
-
-func test__assert_is_type_of__passes_with_deeper_inheritance():
+func test__assert_extends__passes_with_deeper_inheritance():
 	var eb = ExtendsBaseClass.new()
-	gr.test.assert_is_type_of(eb, Node2D)
+	gr.test.assert_extends(eb, Node2D)
 	assert_pass(gr.test)
 
-func test__assert_is_type_of__fails_when_class_names_match_but_inheritance_does_not():
+func test__assert_extends__fails_when_class_names_match_but_inheritance_does_not():
 	var a = HasSubclass1.SubClass.new()
 	var b = HasSubclass2.SubClass.new()
-	gr.test.assert_is_type_of(a, b)
+	gr.test.assert_extends(a, b)
 	assert_fail(gr.test)
 
-func test__assert_is_type_of__fails_when_class_names_match_but_inheritance_does_not__with_class():
+func test__assert_extends__fails_when_class_names_match_but_inheritance_does_not__with_class():
 	var a = HasSubclass1.SubClass.new()
-	gr.test.assert_is_type_of(a, HasSubclass2.SubClass)
+	gr.test.assert_extends(a, HasSubclass2.SubClass)
 	assert_fail(gr.test)
