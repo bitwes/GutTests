@@ -335,6 +335,9 @@ func test_pending_increments_pending_count():
 func test_pending_accepts_text():
 	pending("This is a pending test.  You should see this text in the results.")
 
+func test_pending_does_not_increment_passed():
+	gr.test.pending()
+	assert_eq(gr.test.get_pass_count(), 0)
 
 #--------------------------------------
 # Classes used to set get/set assert
