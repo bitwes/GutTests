@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 
-var Gut = load('res://addons/Gut/gut.gd')
-var Test = load('res://addons/Gut/test.gd')
+var Gut = load('res://addons/gut/gut.gd')
+var Test = load('res://addons/gut/test.gd')
 
 #--------------------------------------
 #Used to test calling the _process method
