@@ -11,7 +11,7 @@ extends "res://addons/gut/test.gd"
 #		note of it.
 #	*
 # ##############################################################################
-var SignalWatcher = load('res://addons/Gut/signal_watcher.gd')
+var SignalWatcher = load('res://addons/gut/signal_watcher.gd')
 var gr = {
 	so = null,
 	sw = null

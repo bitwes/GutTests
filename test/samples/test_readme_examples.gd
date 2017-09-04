@@ -345,3 +345,29 @@ func test_get_signal_parameters():
 	gut.p('-- failing --')
 	assert_eq(get_signal_parameters(obj, 'some_signal'), [1, 2, 3])
 	assert_eq(get_signal_parameters(obj, 'some_signal', 0), ['a', 'b', 'c'])
+
+class BaseClass:
+	var a = 1
+class SubClass:
+	extends BaseClass
+
+
+func test_assert_extends():
+	gut.p('-- passing --')
+	assert_extends(Node2D.new(), Node2D)
+	assert_extends(Label.new(), CanvasItem)
+	assert_extends(SubClass.new(), BaseClass)
+	# Since this is a test script that inherits from test.gd, so
+	# this passes.  It's not obvious w/o seeing the whole script
+	# so I'm telling you.  You'll just have to trust me.
+	assert_extends(self, load('res://addons/gut/test.gd'))
+
+	var Gut = load('res://addons/gut/gut.gd')
+	var a_gut = Gut.new()
+	assert_extends(a_gut, Gut)
+
+	gut.p('-- failing --')
+	assert_extends(Node2D.new(), Node2D.new())
+	assert_extends(BaseClass.new(), SubClass)
+	assert_extends('a', 'b')
+	assert_extends([], Node)

@@ -1,5 +1,9 @@
+# ------------------------------------------------------------------------------
+#
 # This test script is run manually by test_gut.gd to verify that watched
-# signals are cleared between tests
+# signals are cleared between tests.
+#
+# ------------------------------------------------------------------------------
 extends "res://addons/gut/test.gd"
 
 class SignalObject:
@@ -9,10 +13,11 @@ class SignalObject:
 var the_signal_object = SignalObject.new()
 
 func test_watch_and_emit_a_signal():
-	gut.watch_signals(the_signal_object)
+	watch_signals(the_signal_object)
 	the_signal_object.emit_signal('the_signal')
-	gut.assert_signal_emitted(the_signal_object, 'the_signal')
+	assert_signal_emitted(the_signal_object, 'the_signal')
 
 func test_make_sure_not_watching_anymore():
-	# this should fail, it is verified in the test that runs this script
-	gut.assert_signal_emitted(the_signal_object, 'the_signal')
+	# this should fail because the object should not be watched anymore,
+	# it is verified in the test that runs this script
+	assert_signal_emitted(the_signal_object, 'the_signal')
