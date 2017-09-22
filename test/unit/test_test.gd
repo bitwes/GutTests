@@ -4,18 +4,21 @@ var Gut = load('res://addons/gut/gut.gd')
 var Test = load('res://addons/gut/test.gd')
 var _print_all_subtests = true
 
-# Constants so I don't get false pass/fail with misspellings
+# Constants for all the signals created in SignalObject so I don't get false
+# pass/fail from typos
 const SIGNALS = {
 	NO_PARAMETERS = 'no_parameters',
 	ONE_PARAMETER = 'one_parameter',
 	TWO_PARAMETERS = 'two_parameters',
-	SOME_SIGNAL = 'some_signal'
+	SOME_SIGNAL = 'some_signal',
+	SCRIPT_SIGNAL = 'script_signal'
 }
 
 # ####################
 # A class that can emit all the signals in SIGNALS
 # ####################
 class SignalObject:
+	signal script_signal
 	func _init():
 		add_user_signal(SIGNALS.NO_PARAMETERS)
 		add_user_signal(SIGNALS.ONE_PARAMETER, [
@@ -583,6 +586,16 @@ func test_can_get_signal_parameters():
 	gr.test.watch_signals(gr.signal_object)
 	gr.signal_object.emit_signal(SIGNALS.SOME_SIGNAL, 1, 2, 3)
 	assert_eq(gr.test.get_signal_parameters(gr.signal_object, SIGNALS.SOME_SIGNAL, 0), [1, 2, 3])
+
+func test__assert_signal_emitted__passes_with_script_signals():
+	gr.test.watch_signals(gr.signal_object)
+	gr.signal_object.emit_signal(SIGNALS.SCRIPT_SIGNAL)
+	gr.test.assert_signal_emitted(gr.signal_object, SIGNALS.SCRIPT_SIGNAL)
+	assert_pass(gr.test)
+
+func test__assert_has_signal__works_with_script_signals():
+	gr.test.assert_has_signal(gr.signal_object, SIGNALS.SCRIPT_SIGNAL)
+	assert_pass(gr.test)
 
 # ------------------------------
 # Extends Asserts
