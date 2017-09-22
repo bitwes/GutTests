@@ -40,6 +40,10 @@ class SignalObject:
 		])
 		add_user_signal(SIGNALS.SOME_SIGNAL)
 
+class ScriptSignalObject:
+	signal script_signal
+	func _init():
+		add_user_signal('user_signal')
 
 # ####################
 # Setup/Teardown
@@ -184,6 +188,25 @@ func test_can_get_params_for_a_specific_emission_of_signal():
 	gr.so.emit_signal(SIGNALS.SOME_SIGNAL, 'third')
 	var params = gr.sw.get_signal_parameters(gr.so, SIGNALS.SOME_SIGNAL, 1)
 	assert_eq(params, ['second'])
+
+# ####################
+# Watch Script Signals
+# ####################
+func test_can_see_script_signals():
+	var script_signaler = ScriptSignalObject.new()
+	gr.sw.watch_signals(script_signaler)
+	assert_true(gr.sw.is_watching(script_signaler, 'script_signal'))
+
+func test_can_watch_script_signal_explicitly():
+	var script_signaler = ScriptSignalObject.new()
+	gr.sw.watch_signal(script_signaler, 'script_signal')
+	assert_true(gr.sw.is_watching(script_signaler, 'script_signal'))
+
+func test_can_see_script_signals_emit():
+	var script_signaler = ScriptSignalObject.new()
+	gr.sw.watch_signals(script_signaler)
+	script_signaler.emit_signal('script_signal')
+	assert_true(gr.sw.did_emit(script_signaler, 'script_signal'))
 
 # ####################
 # Watch Signals (plural)
